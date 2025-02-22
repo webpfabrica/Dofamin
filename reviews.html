@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Відгуки - Кондитерська фабрика</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="button">
+        <button onclick="location.href='index.html'">Головна сторінка</button>
+        <button onclick="location.href='reviews.html'">Відгуки</button>
+        <button onclick="location.href='social.html'">Соц. мережі</button>
+    </div>
+    <div class="container">
+        <h1>Відгуки</h1>
+        
+        <div class="review-form">
+            <h2>Залишити відгук</h2>
+            <form id="reviewForm" onsubmit="submitReview(event)">
+                <div class="form-group">
+                    <label for="name">Прізвище Ім'я:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Оцінка:</label>
+                    <div class="rating">
+                        <input type="radio" id="star5" name="rating" value="5" required>
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4">
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3">
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2">
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1">
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="review">Відгук:</label>
+                    <textarea id="review" required></textarea>
+                </div>
+                
+                <button type="submit">Надіслати відгук</button>
+            </form>
+        </div>
+
+        <div id="reviewsContainer" class="reviews-container">
+            <!-- Отзывы будут добавлены через JavaScript -->
+        </div>
+    </div>
+
+    <style>
+        .reviews-container {
+            margin-top: 2rem;
+        }
+
+        .review {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background-color: #fff;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-author {
+            font-weight: bold;
+        }
+
+        .review-date {
+            color: #666;
+        }
+
+        .review-rating {
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-content {
+            line-height: 1.5;
+        }
+
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            cursor: pointer;
+            font-size: 25px;
+            color: #ddd;
+            padding: 0 0.1em;
+        }
+
+        .rating input:checked ~ label {
+            color: #ffd700;
+        }
+
+        .rating label:hover,
+        .rating label:hover ~ label {
+            color: #ffd700;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.5rem;
+        }
+    </style>
+
+    <!-- Подключение JavaScript файла -->
+    <script src="reviews.js"></script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кондитерська фабрика</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .allproduct {
+            background-color: white;
+            width: 6%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+            max-height: 80%;
+        }
+        /* Стили для модального окна */
+        #cart {
+            display: none; /* Скрыто по умолчанию */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #cart.active {
+            display: flex; /* Показывать корзину */
+        }
+
+        #cart .cart-items {
+            background-color: white;
+            width: 90%;
+            max-width: 700px;
+            padding: 220px;
+            border-radius: 10px;
+            overflow-y: auto;
+            max-height: 80%;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .cart-item .quantity-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-item button {
+            margin: 0 5px;
+        }
+
+        /* Кнопка закрытия */
+        .cart-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #019524;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="button">
+        <button onclick="location.href='index.html'">Головна сторінка</button>
+        <button onclick="location.href='reviews.html'">Відгуки</button>
+        <button onclick="location.href='social.html'">Соц. мережі</button>
+    </div>
+
+    <!-- Кнопка корзины для мобильных -->
+    <button class="cart-toggle" onclick="toggleCart()">
+        🛒 Кошик <span id="cartCount">0</span>
+    </button>
+
+    <div class="container">
+        <h1>Наш магазин</h1>
+        
+        <div class="products" id="products">
+            <script src="index.js"></script>
+        </div>
+
+        <div class="cart" id="cart">
+            <div class="cart-items" id="cartItems">
+                <h1>Ваш кошик</h1>
+            </div>
+            <div class="allproduct" id="total">Итого: 0 Грн</div>
+            <button onclick="showCheckoutForm()">Оформити замовлення</button>
+            <button class="cart-close-btn" onclick="closeCart()">Закрити корзину</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно с формой оформления заказа -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCheckoutForm()">&times;</span>
+            <h2>Оформлення заказу</h2>
+            <form id="checkoutForm" onsubmit="submitOrder(event)">
+                <div class="form-group">
+                    <label for="fullName">Ім'я Прізвище:</label>
+                    <input type="text" id="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Номер телефону:</label>
+                    <input type="number" id="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Адреса доставки:</label>
+                    <input type="text" id="address" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Електронна пошта:</label>
+                    <input type="text" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Способи оплати:</label>
+                    <div class="payment-methods">
+                        <div class="payment-method">
+                            <input type="radio" id="cash" name="paymentMethod" value="cash" required>
+                            <label for="cash">Готівкою при отриманні</label>
+                        </div>
+                        <div class="payment-method">
+                            <input type="radio" id="card" name="paymentMethod" value="card">
+                            <label for="card">Картою при отриманні</label>
+                        </div>
+                        <div class="allproduct" id="total">Итого: 0 Грн</div>
+                    </div>
+                </div>
+                <button type="submit">Підтвердити замовлення</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let cart = {};
+
+        function toggleCart() {
+            const cartElement = document.getElementById('cart');
+            cartElement.classList.toggle('active'); // Открыть или закрыть корзину
+        }
+
+        function closeCart() {
+            const cartElement = document.getElementById('cart');
+            cartElement.classList.remove('active'); // Закрыть корзину
+        }
+
+        function updateCartCount() {
+            const count = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = count;
+        }
+
+        function displayProducts() {
+            const productsDiv = document.getElementById('products');
+            productsDiv.innerHTML = products.map(product => `
+                <div class="product">
+                    <h3>${product.name}</h3>
+                    <img src="${product.image}" alt="${product.name}">
+                    <div class="description">${product.description}</div>
+                    <div class="price">${product.price} Грн</div>
+                    <button onclick="addToCart(${product.id})">До кошика</button>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(productId) {
+            if (cart[productId]) {
+                cart[productId].quantity++;
+            } else {
+                const product = products.find(p => p.id === productId);
+                cart[productId] = {
+                    ...product,
+                    quantity: 1
+                };
+            }
+            updateCart();
+            updateCartCount();
+        }
+
+        function incrementQuantity(productId) {
+            if (cart[productId]) {
+                cart[productId].quantity++;
+                updateCart();
+                updateCartCount();
+            }
+        }
+
+        function decrementQuantity(productId) {
+            if (cart[productId]) {
+                if (cart[productId].quantity > 1) {
+                    cart[productId].quantity--;
+                } else {
+                    delete cart[productId];
+                }
+                updateCart();
+                updateCartCount();
+            }
+        }
+
+        function updateCart
+        () {
+            const cartItems = document.getElementById('cartItems');
+            const total = document.getElementById('total');
+            
+            cartItems.innerHTML = Object.values(cart).map(item => `
+                <div class="cart-item">
+                    <div>${item.name} - ${item.price} Грн</div>
+                    <div class="quantity-controls">
+                        <button onclick="decrementQuantity(${item.id})">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="incrementQuantity(${item.id})">+</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            const totalSum = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            total.textContent = `Итого: ${totalSum} Грн`;
+        }
+
+        function showCheckoutForm() {
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (Object.keys(cart).length === 0) {
+        alert('Ваш кошик порожній!');
+        return;
+    }
+    closeCart(); // Закрываем корзину //
+    checkoutModal.style.display = 'block'; // Открываем модальное окно //
+}
+
+function closeCheckoutForm() {
+    document.getElementById('checkoutModal').style.display = 'none';
+}
+
+
+        function closeCheckoutForm() {
+            document.getElementById('checkoutModal').style.display = 'none';
+        }
+
+        function submitOrder(event) {
+            event.preventDefault();
+
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const email = document.getElementById('email').value;
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const paymentText = paymentMethod === 'cash' ? 'Наличными при получении' : 'Картой при получении';
+
+            const order = {
+                customerInfo: {
+                    fullName,
+                    phone,
+                    address,
+                    email,
+                    paymentMethod: paymentText
+                },
+                items: Object.values(cart).map(item => `${item.name} (${item.quantity} штука.)`),
+                total: Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                datetime: new Date().toLocaleString()
+            };
+
+            const TELEGRAM_BOT_URL = 'https://api.telegram.org/bot7793475696:AAHc4uz8vOC0MVlVpD-5ktoXLYdunfK7Lzo/sendMessage';
+            const TELEGRAM_CHAT_ID = '5160015392';
+
+            const message = `
+                🛍️ Новый заказ!
+                
+                👤 Покупатель:
+                Имя: ${order.customerInfo.fullName}
+                Телефон: ${order.customerInfo.phone}
+                Адрес: ${order.customerInfo.address}
+                Електроная почта: ${order.customerInfo.email}
+                
+                💳 Способ оплаты: ${order.customerInfo.paymentMethod}
+                
+                📦 Товары:
+                ${order.items.join('\n')}
+
+                💰 Сумма: ${order.total} Грн
+                🕒 Время: ${order.datetime}
+            `;
+
+            fetch(TELEGRAM_BOT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Заказ успешно оформлен!');
+                cart = {};
+                updateCart();
+                updateCartCount();
+                closeCheckoutForm();
+                document.getElementById('checkoutForm').reset();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при оформлении заказа');
+            });
+        }
+
+        // Инициализация страницы
+        displayProducts();
+    </script>
+</body>
+</html>
